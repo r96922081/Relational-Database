@@ -10,5 +10,5 @@ I use my own [LexYacc](https://github.com/r96922081/LexYacc) to implement SQL sy
 [sql_boolean_expression.y](https://github.com/r96922081/Relational-Database/blob/main/LexYaccInput/sql_boolean_expression.y)\
 [sql_arithmetic_expression.y](https://github.com/r96922081/Relational-Database/blob/main/LexYaccInput/sql_arithmetic_expression.y)
 
-## Select
-![enter image description here](https://r96922081.github.io/Relation-Database/select.png)
+## Insert
+![enter image description here](https://r96922081.github.io/Relation-Database/insert.png)
