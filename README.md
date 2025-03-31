@@ -25,3 +25,9 @@ I use my own [LexYacc](https://github.com/r96922081/LexYacc) to implement SQL sy
 
 ## Join
 ![enter image description here](https://r96922081.github.io/Relation-Database/join.png)
+
+## Transaction
+![enter image description here](https://r96922081.github.io/Relation-Database/transaction.png)
+
+## Persistent
+![enter image description here](https://r96922081.github.io/Relation-Database/persistent.png)
