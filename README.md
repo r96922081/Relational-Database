@@ -16,3 +16,9 @@ I use my own [LexYacc](https://github.com/r96922081/LexYacc) to implement SQL sy
 
 ## Select
 ![enter image description here](https://r96922081.github.io/Relation-Database/select.png)
+
+## Update
+![enter image description here](https://r96922081.github.io/Relation-Database/update.png)
+
+## Delete
+![enter image description here](https://r96922081.github.io/Relation-Database/delete.png)
