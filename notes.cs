@@ -1,7 +1,7 @@
 ﻿/*
 Todo:
 
-- group by need more test, and not support column alias, order by
+- join + group case
 
 - in, with
 

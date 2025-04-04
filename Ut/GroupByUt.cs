@@ -86,10 +86,10 @@
             {
                 //InteractiveConsole.PrintTable(s);
                 int col = 0;
-                Check((string)s.selectedColumnNames[col++] == "1_MAX(C1)");
-                Check((string)s.selectedColumnNames[col++] == "2_MIN(C3)");
-                Check((string)s.selectedColumnNames[col++] == "3_COUNT(C4)");
-                Check((string)s.selectedColumnNames[col++] == "4_SUM(C5)");
+                Check((string)s.customColumnNames[col++] == "MAX(C1)");
+                Check((string)s.customColumnNames[col++] == "MIN(C3)");
+                Check((string)s.customColumnNames[col++] == "COUNT(C4)");
+                Check((string)s.customColumnNames[col++] == "SUM(C5)");
                 Check((string)s.selectedColumnNames[col++] == "C4");
                 Check((string)s.selectedColumnNames[col++] == "C5");
 
@@ -260,6 +260,63 @@
             }
         }
 
+        private void Ut6()
+        {
+            /*
+                --------------------------------
+                | C1   | C2     | C3 | C4 | C5 |
+                --------------------------------
+                | ABC  | ABCDE  | 10 |    | 20 |
+                | ABC  | ABCDEF | 20 |    | 30 |
+                | DEF  | ABCDEF | 20 |    | 30 |
+                | DEF  | ABCDEF | 40 | 50 | 35 |
+                | DEF  | ABCDEF | 45 | 50 | 35 |
+                | DEFX | ABCDEF | 45 | 50 |    |
+                --------------------------------
+            */
+
+            sql_statements.Parse("LOAD DB " + Path.Join(UtUtil.GetUtFileFolder(), "TEST_GROUP_BY_2.DB"));
+
+            /*
+             ---------------------------
+            | C1   | MIN(C2) | MAX_C3 |
+            ---------------------------
+            | DEF  | ABCDEF  | 45     |
+            | DEFX | ABCDEF  | 45     |
+            | ABC  | ABCDE   | 20     |
+---------------------------
+             */
+            object o = sql_statements.Parse("SELECT C1, MIN(C2), MAX(C3) AS MAX_C3 FROM A GROUP BY C1 ORDER BY MAX_C3 desc");
+            using (SelectedData s = o as SelectedData)
+            {
+                //InteractiveConsole.PrintTable(s);
+                Check(s.table.rows.Count == 3);
+                Check((string)s.table.rows[s.selectedRows[0]][0] == "DEF");
+                Check((double)s.table.rows[s.selectedRows[2]][2] == 20);
+            }
+
+            /*
+            -----------------------------------------------
+            | MAX(C1) | SUM(C5) | COUNT(C2) | MAX1 | MAX2 |
+            -----------------------------------------------
+            | DEF     | 100     | 3         | 45   | 45   |
+            | DEFX    | 0       | 1         | 45   | 45   |
+            | ABC     | 50      | 2         | 20   | 20   |
+            -----------------------------------------------         
+             */
+            o = sql_statements.Parse("SELECT MAX(C1), SUM(C5), COUNT(C2), MAX(C3) AS MAX1, MAX(C3) MAX2 FROM A GROUP BY C1 ORDER BY MAX1 DESC, 2 DESC");
+            using (SelectedData s = o as SelectedData)
+            {
+                //InteractiveConsole.PrintTable(s);
+                Check(s.table.rows.Count == 3);
+                Check((string)s.table.rows[s.selectedRows[0]][0] == "DEF");
+                Check((double)s.table.rows[s.selectedRows[2]][1] == 50);
+                Check((double)s.table.rows[s.selectedRows[2]][4] == 20);
+            }
+
+            CheckSyntaxErrorOrException(() => { return sql_statements.Parse("SELECT C2 FROM A GROUP BY C1"); });
+
+        }
 
         public void Ut()
         {
@@ -268,6 +325,7 @@
             Ut3_orderby();
             Ut4_groupByNone();
             Ut5_where();
+            Ut6();            
         }
     }
 }

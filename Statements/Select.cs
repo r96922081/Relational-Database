@@ -34,7 +34,8 @@ namespace MyDBNs
                 {
                     for (int i = 0; i < s.selectedColumnNames.Count; i++)
                     {
-                        if (s.selectedColumnNames[i].ToUpper() == ((string)order.column).ToUpper())
+                        if ((s.customColumnNames[i] != null && (s.customColumnNames[i].ToUpper() == ((string)order.column).ToUpper()))
+                            || (s.selectedColumnNames[i].ToUpper() == ((string)order.column).ToUpper()))
                         {
                             OrderBy orderBy = new OrderBy();
                             orderBy.op = ascending;
@@ -310,18 +311,55 @@ namespace MyDBNs
             s.table = table;
             s.selectedRows = GetSelectedRows(s.table.name, whereCondition);
 
-            if (aggregrationColumnCount == 0)
-                SetColumnsWithoutGroupBy(s, columns, tables);
-            else
+            if ((groupByColumns != null && groupByColumns.Count > 0) || aggregrationColumnCount > 0)
                 SetColumnsWithGroupBy(s, columns, tables, groupByColumns);
+            else            
+                SetColumnsWithoutGroupBy(s, columns, tables);                
 
             SortSelectedData(s, orderByColumns);
 
             return s;
         }
 
+        private static void AddDefaultCustomColumnNameToAggregrationColumns(List<AggregationColumn> aggregrationColumns)
+        {
+            foreach (AggregationColumn a in aggregrationColumns)
+            {
+                if (a.customColumnName != null)
+                    continue;
+
+                if (a.op == AggerationOperation.NONE)
+                    continue;
+
+                a.customColumnName = a.op.ToString() + "(" + a.columnName + ")";
+            }
+        }
+
+        private static void CheckNonAggregationColumns(List<AggregationColumn> aggregrationColumns, List<string> groupByColumns)
+        {
+            foreach (AggregationColumn a in aggregrationColumns)
+            {
+                if (a.op == AggerationOperation.NONE)
+                {
+                    bool isGroupby = false;
+                    foreach (string groupByColumn in groupByColumns)
+                    {
+                        if (a.columnName.ToUpper() == groupByColumn.ToUpper())
+                            isGroupby = true;
+                    }
+
+                    if (isGroupby == false)
+                        throw new Exception(a.columnName + " is not aggregation column, then it should be in group by, but it's not.");
+                }
+            }
+        }
+
         public static void SetColumnsWithGroupBy(SelectedData s, List<AggregationColumn> aggregrationColumns, Tables tables, List<string> groupByColumns)
         {
+            CheckNonAggregationColumns(aggregrationColumns, groupByColumns);
+
+            AddDefaultCustomColumnNameToAggregrationColumns(aggregrationColumns);
+
             // modify count(*) to count(C1)
             foreach (AggregationColumn a in aggregrationColumns)
             {
@@ -434,18 +472,20 @@ namespace MyDBNs
                         }
                     }
                 }
-
-                string tempTableName = "TempTableGroupBy_" + (Gv.sn++);
-                CreateTempGroupByTable(srcTable, tempTableName, aggregrationColumns);
-
-                Insert.InsertRows(tempTableName, groupByRows.Values.ToList());
-
-                s.table = Util.GetTable(tempTableName);
-                s.selectedColumnNames = s.table.columns.Select(s => s.columnName).ToList();
-                s.customColumnNames = aggregrationColumns.Select(s => s.customColumnName).ToList();
-                s.selectedColumnIndex = Enumerable.Range(0, aggregrationColumns.Count).ToList();
-                s.selectedRows = Enumerable.Range(0, s.table.rows.Count).ToList();
             }
+
+            string tempTableName = "TempTableGroupBy_" + (Gv.sn++);
+            CreateTempGroupByTable(srcTable, tempTableName, aggregrationColumns);
+
+            Insert.InsertRows(tempTableName, groupByRows.Values.ToList());
+
+            Drop.DropTable(s.table.name);
+
+            s.table = Util.GetTable(tempTableName);
+            s.selectedColumnNames = aggregrationColumns.Select(s => s.columnName).ToList();
+            s.customColumnNames = aggregrationColumns.Select(s => s.customColumnName).ToList();
+            s.selectedColumnIndex = Enumerable.Range(0, aggregrationColumns.Count).ToList();
+            s.selectedRows = Enumerable.Range(0, s.table.rows.Count).ToList();
         }
 
         private static void CreateTempGroupByTable(Table srcTable, string tempTableName, List<AggregationColumn> columns)

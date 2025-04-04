@@ -245,12 +245,9 @@
             return a;
         }
 
-        public static AggregationColumn AggregationColumnAs(AggregationColumn a, string displayName)
+        public static AggregationColumn AggregationColumnAs(AggregationColumn a, string customColumnName)
         {
-            a.customColumnName = displayName;
-            if (displayName == null)
-                a.customColumnName = a.columnName;
-
+            a.customColumnName = customColumnName;
             return a;
         }
 
