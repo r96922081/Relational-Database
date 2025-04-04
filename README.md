@@ -2,7 +2,7 @@
 
 # Relational-Database
 
-A simple in-memory relational database implementation, supports basic opeartions, including insert, select, update, delete, join, group (partially done), transaction, and persistent
+A simple in-memory relational database implementation, supports basic opeartions, including insert, select, update, delete, join, group, transaction, and persistent
 
 
 I use my own [LexYacc](https://github.com/r96922081/LexYacc) to implement SQL syntax parser.  [Lex input](https://github.com/r96922081/Relational-Database/blob/main/LexYaccInput/sql.l), [Yacc input](https://github.com/r96922081/Relational-Database/blob/main/LexYaccInput/sql_statements.y)
@@ -22,7 +22,7 @@ I use my own [LexYacc](https://github.com/r96922081/LexYacc) to implement SQL sy
 ## Join
 ![enter image description here](https://r96922081.github.io/Relation-Database/join.png)
 
-## Group (partially done)
+## Group
 ![enter image description here](https://r96922081.github.io/Relation-Database/group.png)
 
 ## Transaction
