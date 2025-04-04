@@ -1,6 +1,8 @@
 ﻿/*
 Todo:
 
+- group by need more test, and not support column alias, order by
+
 - in, with
 
 - case when
